@@ -24,7 +24,7 @@ namespace Service.Services
         private readonly ISurveyRepository _repo;
         private readonly IMapper _mapper;
 
-        public SurveyService(IGenericRepository<Survey> repository, IUnitOfWork unitOfWork, IValidator<SurveyDto> surveyValidator, ISurveyRepository repo, IMapper mapper) : base(repository, unitOfWork)
+        public SurveyService(IGenericRepository<Survey> repository, IUnitOfWork unitOfWork, IValidator<SurveyDto> surveyValidator, ISurveyRepository repo, IMapper mapper) : base(repository, unitOfWork, mapper)
         {
             _surveyValidator = surveyValidator;
             _repo = repo;

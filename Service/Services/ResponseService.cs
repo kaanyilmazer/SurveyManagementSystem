@@ -28,7 +28,6 @@ namespace Service.Services
             {
                 return new ErrorDataResult<ResponsesDto>(string.Concat(validationResults.Errors.Select(x => x.ErrorMessage)));
             }
-
             return await base.AddAsync(entity);
         }
 
