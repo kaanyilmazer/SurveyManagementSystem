@@ -23,7 +23,7 @@ namespace Service.Services
         private readonly IAnswerRepository _answerRepository;
         private readonly IMapper _mapper;
 
-        public AnswerService(IGenericRepository<Answer> repository, IUnitOfWork unitOfWork, IAnswerRepository answerRepository, IMapper mapper, IValidator<AnswerDto> answerValidator) : base(repository, unitOfWork)
+        public AnswerService(IGenericRepository<Answer> repository, IUnitOfWork unitOfWork, IAnswerRepository answerRepository, IMapper mapper, IValidator<AnswerDto> answerValidator) : base(repository, unitOfWork,mapper)
         {
             _answerRepository = answerRepository;
             _mapper = mapper;

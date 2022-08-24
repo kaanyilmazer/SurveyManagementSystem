@@ -5,6 +5,7 @@ using Core.Results;
 using Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service.Redis;
 using SurveyManagementAPI.Filters;
 
 namespace SurveyManagementAPI.Controllers
@@ -17,9 +18,15 @@ namespace SurveyManagementAPI.Controllers
 
         public ResponseController(IResponseService service) : base(service)
         {
-            service = _service;
+            _service = service;
         }
 
+        [Cached(600)]
+        [HttpGet]
+        public override async Task<IActionResult> GetAll()
+        {
+            return Ok(await _service.GetAllAsync());
+        }
     }
 }
 

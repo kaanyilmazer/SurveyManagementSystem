@@ -25,27 +25,37 @@ using Service.Validations;
 using FluentValidation;
 using Core.Dtos;
 using SurveyManagementAPI.Validations;
+using Service.Redis;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
-//Scoped
+builder.Host.ConfigureHostConfiguration(builder =>
+{
+    builder.AddJsonFile($"appsettings.json", optional: true, reloadOnChange: false);
+});
+//builder.Services.AddScoped<IInstaller, CacheInstaller>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ISurveyService, SurveyService>();
-builder.Services.AddScoped<IAnswerService, AnswerService>();
-builder.Services.AddScoped<IResponseService, ResponseService>();
-builder.Services.AddScoped<IQuestionOptionService, QuestionOptionService>();
-builder.Services.AddScoped<IQuestionService, QuestionService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddScoped<ISurveyService,SurveyService>();
+builder.Services.AddScoped<IAnswerService,AnswerService>();
+builder.Services.AddScoped<IResponseService,ResponseService>();
+builder.Services.AddScoped<IQuestionOptionService,QuestionOptionService>();
+builder.Services.AddSingleton<IResponseCacheService, ResponseCacheService>();
+//builder.Services.AddScoped<IResponseCacheService,ResponseCacheService>();
+builder.Services.AddScoped<IQuestionService,QuestionService>();
+builder.Services.AddScoped<ITokenService,TokenService>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IService<,>), typeof(Service<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IValidator<CreateUserDto>,UserValidator>();
-builder.Services.AddScoped<IValidator<AnswerDto>, AnswerValidator>();
-builder.Services.AddScoped<IValidator<ResponsesDto>, ResponseValidator>();
-builder.Services.AddScoped<IValidator<SurveyDto>, SurveyValidator>();
-builder.Services.AddScoped<IValidator<QuestionDto>,  QuestionValidator>();
+builder.Services.AddScoped<IValidator<AnswerDto>,AnswerValidator>();
+builder.Services.AddScoped<IValidator<ResponsesDto>,ResponseValidator>();
+builder.Services.AddScoped<IValidator<SurveyDto>,SurveyValidator>();
+builder.Services.AddScoped<IValidator<QuestionDto>,QuestionValidator>();
 
-//Db Baglantýsý
+builder.Services.AddSingleton<RedisCacheSettings>();
+
+
 builder.Services.AddDbContext<AppDbContext>(x =>
 {
     x.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"), option =>
@@ -54,6 +64,7 @@ builder.Services.AddDbContext<AppDbContext>(x =>
         option.MigrationsAssembly(Assembly.GetAssembly(typeof(AppDbContext)).GetName().Name);
     });
 });
+
 
 //Identity Role
 
@@ -68,6 +79,18 @@ builder.Services.AddIdentity<UserApp, IdentityRole>(option =>
 builder.Services.Configure<CustomTokenOption>(builder.Configuration.GetSection("TokenOption"));
 builder.Services.Configure<List<Client>>(builder.Configuration.GetSection("Clients"));
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+
+
+builder.Services.Configure<RedisCacheSettings>(builder.Configuration.GetSection("RedisCacheSettings"));
+
+
+
+builder.Services.AddStackExchangeRedisCache(opt =>
+{
+    opt.Configuration = builder.Configuration.GetSection("RedisCacheSettings:ConnectionString").Value;
+});
+
+
 
 
 //auth ve jwt token 
@@ -92,6 +115,7 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
+
 
 //Fluent
 builder.Services.AddControllers(options => options.Filters.Add(new ValidateFilterAttribute())).AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<SurveyDtoValidator>());
@@ -121,6 +145,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+    
 app.UseHttpsRedirection();
 app.UseCustomException();
 app.UseRouting();

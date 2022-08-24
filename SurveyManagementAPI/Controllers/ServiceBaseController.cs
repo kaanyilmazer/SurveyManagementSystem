@@ -1,5 +1,6 @@
 ﻿using Core.Services;
 using Microsoft.AspNetCore.Mvc;
+using Service.Redis;
 
 namespace SurveyManagementAPI.Controllers
 {
@@ -8,12 +9,13 @@ namespace SurveyManagementAPI.Controllers
     {
         IService<T, TDto> _service;
 
-
+       
         public ServiceBaseController(IService<T, TDto> service)
         {
             _service = service;
         }
 
+        
         [HttpPost]
         public async Task<IActionResult> Add(TDto tdto)
         {
@@ -38,8 +40,9 @@ namespace SurveyManagementAPI.Controllers
             return Ok(await _service.RemoveAsync(id));
         }
 
+        
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public virtual async Task<IActionResult> GetAll()
         {
             return Ok(await _service.GetAllAsync());
         }

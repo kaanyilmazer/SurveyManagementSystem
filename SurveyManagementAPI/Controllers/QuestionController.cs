@@ -3,8 +3,10 @@ using Core.Dtos;
 using Core.Model;
 using Core.Results;
 using Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Service.Redis;
 using SurveyManagementAPI.Filters;
 
 namespace SurveyManagementAPI.Controllers
@@ -14,7 +16,7 @@ namespace SurveyManagementAPI.Controllers
     public class QuestionController : ServiceBaseController<Question, QuestionDto>
     {
         
-        private readonly IMapper _mapper;
+        
         private readonly IQuestionService _service;
 
         public QuestionController(IQuestionService service) : base(service)
@@ -22,6 +24,8 @@ namespace SurveyManagementAPI.Controllers
             _service = service;
         }
 
+        [Authorize]
+        [Cached(600)]
         [HttpGet("[action]")]
         public async Task<IActionResult> GetQuestionsWithSurvey()
         {
