@@ -56,7 +56,7 @@ namespace Service.Services
             return new SuccessDataResult<TDto>(ObjectMapper.Mapper.Map<TDto>(entity));
         }
 
-        public async virtual Task<IResult> RemoveAsync( int id)
+        public async virtual Task<IResult> RemoveAsync(int id)
         {
             var isExistEntity = await _repository.GetByIdAsync(id);
             if (isExistEntity == null)
@@ -65,7 +65,7 @@ namespace Service.Services
             }
             _repository.Remove(isExistEntity);
             await _unitOfWork.CommitAsync();
-            return new SuccessDataResult<NoContentDto>{ Message = ("Sİlme İşlemi Başarılı!") };
+            return new SuccessDataResult<NoContentDto>{Message = ("Silme İşlemi Başarılı!") };
         }
 
         public async virtual Task<IResult> UpdateAsync(TDto entity)

@@ -27,9 +27,6 @@ namespace Service.Services
             }
             services.AddStackExchangeRedisCache(opt => opt.Configuration = redisCacheSettings.ConnectionString);
             services.AddSingleton<IResponseCacheService, ResponseCacheService>();
-
-            
-
         }
     }
 }

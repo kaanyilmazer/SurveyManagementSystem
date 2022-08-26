@@ -52,9 +52,7 @@ builder.Services.AddScoped<IValidator<AnswerDto>,AnswerValidator>();
 builder.Services.AddScoped<IValidator<ResponsesDto>,ResponseValidator>();
 builder.Services.AddScoped<IValidator<SurveyDto>,SurveyValidator>();
 builder.Services.AddScoped<IValidator<QuestionDto>,QuestionValidator>();
-
 builder.Services.AddSingleton<RedisCacheSettings>();
-
 
 builder.Services.AddDbContext<AppDbContext>(x =>
 {
@@ -65,7 +63,6 @@ builder.Services.AddDbContext<AppDbContext>(x =>
     });
 });
 
-
 //Identity Role
 
 builder.Services.AddIdentity<UserApp, IdentityRole>(option =>
@@ -74,15 +71,11 @@ builder.Services.AddIdentity<UserApp, IdentityRole>(option =>
     option.Password.RequireNonAlphanumeric = false;
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
-
 //appsettings.json baglantý kurma.
 builder.Services.Configure<CustomTokenOption>(builder.Configuration.GetSection("TokenOption"));
 builder.Services.Configure<List<Client>>(builder.Configuration.GetSection("Clients"));
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
-
-
 builder.Services.Configure<RedisCacheSettings>(builder.Configuration.GetSection("RedisCacheSettings"));
-
 
 
 builder.Services.AddStackExchangeRedisCache(opt =>
@@ -90,13 +83,9 @@ builder.Services.AddStackExchangeRedisCache(opt =>
     opt.Configuration = builder.Configuration.GetSection("RedisCacheSettings:ConnectionString").Value;
 });
 
-
-
-
 //auth ve jwt token 
 builder.Services.AddAuthentication(options =>
 {
-
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opts =>
@@ -107,7 +96,6 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = tokenOptions.Issuer,
         ValidAudience = tokenOptions.Audience[0],
         IssuerSigningKey = SignService.GetSymmetricSecurityKey(tokenOptions.SecurityKey),
-
         ValidateIssuerSigningKey = true,
         ValidateAudience = true,
         ValidateIssuer = true,
@@ -115,7 +103,6 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
-
 
 //Fluent
 builder.Services.AddControllers(options => options.Filters.Add(new ValidateFilterAttribute())).AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<SurveyDtoValidator>());
@@ -129,23 +116,21 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMemoryCache();
 builder.Services.AddAutoMapper(typeof(MapProfile));
+builder.Services.AddHealthChecks();
 
 builder.Host.UseServiceProviderFactory
     (new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder => containerBuilder.RegisterModule(new RepoServiceModule()));
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-///
-
 var app = builder.Build();
-
+app.MapHealthChecks("/health");
 if (app.Environment.IsDevelopment())
 
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-    
 app.UseHttpsRedirection();
 app.UseCustomException();
 app.UseRouting();

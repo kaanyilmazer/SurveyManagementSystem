@@ -23,12 +23,6 @@ namespace Service.Services
             _responseValidator = responseValidator;
         }
 
-        public override async Task<IDataResult<IEnumerable<ResponsesDto>>> GetAllAsync()
-        {
-            return await base.GetAllAsync();
-        }
-
-
         public override async Task<IDataResult<ResponsesDto>> AddAsync(ResponsesDto entity)
         {
             var validationResults = await _responseValidator.ValidateAsync(entity);

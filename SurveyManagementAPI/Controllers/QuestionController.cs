@@ -14,15 +14,14 @@ namespace SurveyManagementAPI.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class QuestionController : ServiceBaseController<Question, QuestionDto>
-    {
-        
-        
+    { 
         private readonly IQuestionService _service;
 
         public QuestionController(IQuestionService service) : base(service)
         {
             _service = service;
         }
+
 
         [Authorize]
         [Cached(600)]
